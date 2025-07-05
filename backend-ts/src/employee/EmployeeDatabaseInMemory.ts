@@ -1,5 +1,7 @@
 import { EmployeeDatabase } from "./EmployeeDatabase";
 import { Employee } from "./Employee";
+import { normalizeName } from "../utils/normalize"; // 追加
+
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -23,7 +25,7 @@ function parseCSV(filePath: string): Employee[] {
 }
 
 export class EmployeeDatabaseInMemory implements EmployeeDatabase {
-    private employees: Map<string, Employee>
+    private employees: Map<string, Employee>;
 
     constructor() {
         this.employees = new Map<string, Employee>();
@@ -46,9 +48,16 @@ export class EmployeeDatabaseInMemory implements EmployeeDatabase {
 
     async getEmployees(filterText: string): Promise<Employee[]> {
         const employees = Array.from(this.employees.values());
+
         if (filterText === "") {
             return employees;
         }
-        return employees.filter(employee => employee.name === filterText);
+
+        const normalizedKeyword = normalizeName(filterText);
+
+        return employees.filter((employee) => {
+            const normalizedName = normalizeName(employee.name);
+            return normalizedName.includes(normalizedKeyword);
+        });
     }
 }
