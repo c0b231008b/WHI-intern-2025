@@ -1,7 +1,6 @@
 {
   "name": "backend-ts",
   "version": "0.1.0",
-  "type": "module",
   "main": "out/index.js",
   "scripts": {
     "build": "tsc",
