@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: talent-management-app-dev
+    ports:
+      - "3000:3000"  # frontend
+      - "8080:8080"  # backend
+    volumes:
+      - .:/workspace
+      - /workspace/backend-ts/node_modules
+      - /workspace/frontend/node_modules
+    env_file:
+      - .devcontainer/devcontainer.env
