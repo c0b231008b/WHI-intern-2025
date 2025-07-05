@@ -46,7 +46,7 @@ export function EmployeeCardContainer({ filterText }: EmployeesContainerProps) {
       <Box sx={{ padding: 2 }}>
         <Grid container spacing={2}>
           {data.map((employee) => (
-            <Grid size={4}>
+            <Grid size={4} key={employee.id}>
                   <EmployeeListItem employee={employee} />
             </Grid>
           ))}
