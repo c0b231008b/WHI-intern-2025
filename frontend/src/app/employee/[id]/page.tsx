@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 export default function EmployeePage() {
   return (
-    <GlobalContainer>
+    <GlobalContainer pageTitle="社員詳細">
       <DynamicTitle />
       <Suspense>
         <EmployeeDetailsContainer />
