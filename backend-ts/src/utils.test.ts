@@ -3,6 +3,7 @@
 // 一般的なユーティリティ関数のテスト例を作成します
 
 describe('Utility Functions', () => {
+
     describe('String utilities', () => {
       it('should normalize path by removing trailing slash', () => {
         const normalizePath = (path: string): string => {
