@@ -1,7 +1,6 @@
 import { EmployeeDatabase } from "./EmployeeDatabase";
 import { Employee } from "./Employee";
 import { normalizeName } from "../utils/normalize"; // 追加
-
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
