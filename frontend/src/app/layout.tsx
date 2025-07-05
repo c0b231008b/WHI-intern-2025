@@ -25,6 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
+      <head>
+        {/* ✅ この1行がクライアントサイドのtitle変更を有効化する */}
+        <meta charSet="utf-8" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
       </body>
