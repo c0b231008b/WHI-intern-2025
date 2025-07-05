@@ -1,0 +1,33 @@
+name: Build & Test on PR
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '23'
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm install
+
+      - name: Build frontend
+        run: cd frontend && npm run build
+
+      - name: Install backend dependencies
+        run: cd backend-ts && npm install
+
+      - name: Build backend
+        run: cd backend-ts && npm run build
+
+    #   - name: Run backend unit tests
+    #     run: cd backend-ts && npm run test

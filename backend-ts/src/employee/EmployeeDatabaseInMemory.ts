@@ -29,7 +29,7 @@ export class EmployeeDatabaseInMemory implements EmployeeDatabase {
         this.employees = new Map<string, Employee>();
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
-        const csvPath = path.resolve(__dirname, "employees.csv");
+        const csvPath = path.resolve(__dirname, "../../data/employees.csv");
 
         const employeesFromCSV = parseCSV(csvPath);
 
