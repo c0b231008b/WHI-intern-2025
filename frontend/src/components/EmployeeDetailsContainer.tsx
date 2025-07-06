@@ -4,7 +4,6 @@
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import { Employee, EmployeeT } from "@/models/Employee";
-import * as t from "io-ts";
 import { isLeft } from "fp-ts/Either";
 import { Box, Typography } from "@mui/material";
 import { SimilarEmployees } from "./SimilarEmployees";
