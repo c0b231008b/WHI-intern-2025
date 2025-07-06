@@ -2,7 +2,6 @@ import PersonIcon from "@mui/icons-material/Person";
 import { Avatar, Box, Paper, Tab, Tabs, Typography } from "@mui/material";
 import { Employee } from "../models/Employee";
 import { useCallback, useState } from "react";
-import Link from "next/link";
 import { Button } from "@mui/material"; 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"; // 戻るアイコン
 
