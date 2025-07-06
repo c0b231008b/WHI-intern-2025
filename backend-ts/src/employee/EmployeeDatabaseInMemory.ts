@@ -27,7 +27,7 @@ export class EmployeeDatabaseInMemory implements EmployeeDatabase {
 
     constructor() {
         this.employees = new Map<string, Employee>();
-        const csvPath = path.resolve("../../data/employees.csv");
+        const csvPath = path.join(__dirname, "../../data/employees.csv");
 
         const employeesFromCSV = parseCSV(csvPath);
 
