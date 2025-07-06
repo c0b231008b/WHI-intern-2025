@@ -64,9 +64,11 @@ export class EmployeeDatabaseInMemory implements EmployeeDatabase {
         return employees.filter((employee) => {
             const normalizedName = normalizeName(employee.name);
             const ageString = employee.age.toString();
+            const techNames = employee.techStacks.map(ts => normalizeName(ts.name));
             return (
                 normalizedName.includes(normalizedKeyword) ||
-                ageString.includes(filterText)
+                ageString.includes(filterText) ||
+                techNames.some(name => name.includes(normalizedKeyword))
             );
         });
     }
