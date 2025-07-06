@@ -1,12 +1,34 @@
+"use client";
+import { useState } from "react";
+import { GlobalContainer } from "../components/GlobalContainer";
+import { EmployeeListContainer } from "../components/EmployeeListContainer";
+import { RecommendationDashboard } from "../components/RecommendationDashboard";
 import { SearchEmployees } from "../components/SearchEmployees";
-import { GlobalContainer } from "@/components/GlobalContainer";
-import { DynamicTitle } from "@/components/DynamicTitle";
+import { Box, Typography } from "@mui/material";
 
-export default function Home() {
+export default function HomePage() {
+  const [filterText, setFilterText] = useState("");
+
+  const employeeFetcher = async (url: string): Promise<any | null> => {
+    const response = await fetch(url);
+    if (!response.ok) {
+      return null;
+    }
+    return await response.json();
+  };
+
   return (
-    <GlobalContainer pageTitle="社員検索">
-      <DynamicTitle />
-      <SearchEmployees />
+    <GlobalContainer pageTitle="タレントマネジメント">
+      <RecommendationDashboard />
+      
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          エンジニア一覧
+        </Typography>
+        <SearchEmployees onFilterChange={setFilterText} />
+      </Box>
+      
+      <EmployeeListContainer filterText={filterText} />
     </GlobalContainer>
   );
 }

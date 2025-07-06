@@ -1,10 +1,20 @@
 "use client";
 import { Paper, TextField } from "@mui/material";
-import { useState } from "react";
-import { EmployeeListContainer } from "./EmployeeListContainer";
+import { useState, useEffect } from "react";
 
-export function SearchEmployees() {
+interface SearchEmployeesProps {
+  onFilterChange?: (filterText: string) => void;
+}
+
+export function SearchEmployees({ onFilterChange }: SearchEmployeesProps) {
   const [searchKeyword, setSearchKeyword] = useState("");
+
+  useEffect(() => {
+    if (onFilterChange) {
+      onFilterChange(searchKeyword);
+    }
+  }, [searchKeyword, onFilterChange]);
+
   return (
     <Paper
       sx={{
@@ -19,10 +29,7 @@ export function SearchEmployees() {
         placeholder="検索キーワードを入力してください"
         value={searchKeyword}
         onChange={(e) => setSearchKeyword(e.target.value)}
-      />
-      <EmployeeListContainer
-        key="employeesContainer"
-        filterText={searchKeyword}
+        fullWidth
       />
     </Paper>
   );
