@@ -5,29 +5,38 @@ import { normalizeName } from "../utils/normalize"; // 追加
 import fs from "fs";
 import path from "path";
 
-// CSVを簡単にパースするための関数
+import { parse } from "csv-parse/sync"; // ← 要インストール: npm install csv-parse
+
 function parseCSV(filePath: string): Employee[] {
     const content = fs.readFileSync(filePath, "utf-8");
-    const lines = content.trim().split("\n");
-    const headers = lines[0].split(",");
-    const dataLines = lines.slice(1);
 
-    return dataLines.map(line => {
-        const values = line.split(",");
-        const employee: Employee = {
-            id: values[0],
-            name: values[1],
-            age: Number(values[2]),
-            department: values[3] || "", // 部署がない場合は空文字列
-            position: values[4] || "", // 役職がない場合は空文字列
-            techStacks: (values[5] || "").split(";").filter(pair => pair.trim() !== "").map(pair => {
+    const records = parse(content, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+    });
+
+    return records.map((row: any) => {
+        const techStacks: TechStack[] = (row.techStacks || "")
+            .split(";")
+            .filter((pair: string) => pair.trim() !== "")
+            .map((pair: string) => {
                 const [tech, levelStr] = pair.split(":");
                 return {
-                    name: tech.trim().replace(/^"+|"+$/g, "").replace(/"/g, "") || "", // ダブルクオートを削除
+                    name: tech.trim(),
                     level: Number(levelStr) || 0,
                 };
-            }),
+            });
+
+        const employee: Employee = {
+            id: row.id,
+            name: row.name,
+            age: Number(row.age),
+            department: row.department || "",
+            position: row.position || "",
+            techStacks: techStacks,
         };
+
         return employee;
     });
 }
