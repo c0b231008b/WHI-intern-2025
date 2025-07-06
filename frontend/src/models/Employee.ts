@@ -9,6 +9,7 @@ export const EmployeeT = t.type({
   id: t.string,
   name: t.string,
   age: t.number,
+
   department: t.string, // ✅ 部署を追加
   position: t.string,   // ✅ 役職を追加
   techStacks: t.array(TechStackT), // ✅ 技術スタックを追加

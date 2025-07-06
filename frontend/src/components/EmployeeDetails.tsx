@@ -1,9 +1,19 @@
 "use client";
 import PersonIcon from "@mui/icons-material/Person";
-import { Avatar, Box, Paper, Tab, Tabs, Typography, Button, Alert, CircularProgress } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Paper,
+  Tab,
+  Tabs,
+  Typography,
+  Button,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
 import { Employee } from "../models/Employee";
 import { useCallback, useState, useEffect } from "react";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack"; // 戻るアイコン
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import { Recommendation } from "../models/Recommendation";
 import { RecommendationCard } from "./RecommendationCard";
@@ -29,7 +39,7 @@ interface TabContentProps {
 
 function TabContent({ value, selectedValue, children }: TabContentProps) {
   const isVisible = value === selectedValue;
-  
+
   return (
     <Box
       role="tabpanel"
@@ -37,8 +47,8 @@ function TabContent({ value, selectedValue, children }: TabContentProps) {
       id={`tabpanel-${value}`}
       aria-labelledby={`tab-${value}`}
       sx={{
-        display: isVisible ? 'block' : 'none',
-        width: '100%',
+        display: isVisible ? "block" : "none",
+        width: "100%",
       }}
     >
       {children}
@@ -77,20 +87,23 @@ export type EmployeeDetailsProps = {
 };
 
 export function EmployeeDetails(prop: EmployeeDetailsProps) {
-  const [selectedTabValue, setSelectedTabValue] =
-    useState<TabPanelValue>("basicInfo");
+  const [selectedTabValue, setSelectedTabValue] = useState<TabPanelValue>("basicInfo");
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
   const employee = prop.employee;
 
-  // デバッグ用ログ
   console.log("EmployeeDetails rendered:", {
     selectedTab: selectedTabValue,
     isCreateFormOpen,
     employeeId: employee.id,
-    employeeName: employee.name
+    employeeName: employee.name,
   });
 
-  const { data: recommendations, error, isLoading, mutate } = useSWR<Recommendation[], Error>(
+  const {
+    data: recommendations,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR<Recommendation[], Error>(
     `/api/employees/${employee.id}/recommendations`,
     recommendationsFetcher
   );
@@ -101,9 +114,8 @@ export function EmployeeDetails(prop: EmployeeDetailsProps) {
     if (recommendations) {
       const fetchEmployees = async () => {
         const employeeMap = new Map<string, Employee>();
-        
+
         for (const recommendation of recommendations) {
-          // 推薦者情報を取得
           if (!recommendation.isAnonymous && !employeeMap.has(recommendation.fromEmployeeId)) {
             try {
               const response = await fetch(`/api/employees/${recommendation.fromEmployeeId}`);
@@ -112,11 +124,14 @@ export function EmployeeDetails(prop: EmployeeDetailsProps) {
                 employeeMap.set(recommendation.fromEmployeeId, fromEmployee);
               }
             } catch (error) {
-              console.error(`Failed to fetch from employee ${recommendation.fromEmployeeId}:`, error);
+              console.error(
+                `Failed to fetch from employee ${recommendation.fromEmployeeId}:`,
+                error
+              );
             }
           }
         }
-        
+
         setEmployees(employeeMap);
       };
 
@@ -133,103 +148,65 @@ export function EmployeeDetails(prop: EmployeeDetailsProps) {
   );
 
   const handleRecommendationSuccess = () => {
-    mutate(); // 推薦一覧を再取得
+    mutate();
   };
 
   return (
     <Paper sx={{ p: 2 }}>
-      {/* デバッグ情報 */}
-      <Box sx={{ p: 1, mb: 2, bgcolor: 'warning.light', borderRadius: 1 }}>
+      <Box sx={{ p: 1, mb: 2, bgcolor: "warning.light", borderRadius: 1 }}>
         <Typography variant="caption" color="text.secondary">
           デバッグ: 選択中のタブ = {selectedTabValue}, 推薦フォーム開いている = {isCreateFormOpen.toString()}
         </Typography>
       </Box>
-      
-      <Box
-        display={"flex"}
-        flexDirection="column"
-        alignItems="flex-start"
-        gap={1}
-      >
+
+      <Box display={"flex"} flexDirection="column" alignItems="flex-start" gap={1}>
         <Button
           href="/"
           variant="outlined"
-          startIcon={<ArrowBackIcon />} 
+          startIcon={<ArrowBackIcon />}
           color="primary"
         >
           検索画面に戻る
         </Button>
-        
-        <Box
-          display="flex"
-          flexDirection="row"
-          alignItems="center"
-          p={2}
-          gap={2}
-        >
+
+        <Box display="flex" flexDirection="row" alignItems="center" p={2} gap={2}>
           <Avatar sx={{ width: 128, height: 128 }}>
             <PersonIcon sx={{ fontSize: 128 }} />
           </Avatar>
           <Typography variant="h5">{employee.name}</Typography>
         </Box>
-        
-        {/* タブナビゲーション */}
+
         <Box sx={{ borderBottom: 1, borderColor: "divider", width: "100%", mb: 2 }}>
-          <Tabs 
-            value={selectedTabValue} 
+          <Tabs
+            value={selectedTabValue}
             onChange={handleTabValueChange}
             aria-label="employee details tabs"
-            sx={{ 
+            sx={{
               minHeight: 48,
-              '& .MuiTab-root': {
+              "& .MuiTab-root": {
                 minHeight: 48,
-                fontSize: '1rem',
+                fontSize: "1rem",
                 fontWeight: 500,
               },
-              '& .Mui-selected': {
-                color: 'primary.main',
+              "& .Mui-selected": {
+                color: "primary.main",
                 fontWeight: 600,
-              }
+              },
             }}
           >
-            <Tab 
-              label={tabPanelValue.basicInfo} 
-              value="basicInfo"
-              id="tab-basicInfo"
-              aria-controls="tabpanel-basicInfo"
-            />
-            <Tab 
-              label={tabPanelValue.recommendations} 
-              value="recommendations"
-              id="tab-recommendations"
-              aria-controls="tabpanel-recommendations"
-            />
-            <Tab 
-              label={tabPanelValue.similar}
-              value="similar"
-              id="tab-similar"
-              aria-controls="tabpanel-similar"
-            />
-            <Tab 
-              label={tabPanelValue.others} 
-              value="others"
-              id="tab-others"
-              aria-controls="tabpanel-others"
-            />
+            <Tab label={tabPanelValue.basicInfo} value="basicInfo" id="tab-basicInfo" aria-controls="tabpanel-basicInfo" />
+            <Tab label={tabPanelValue.recommendations} value="recommendations" id="tab-recommendations" aria-controls="tabpanel-recommendations" />
+            <Tab label={tabPanelValue.similar} value="similar" id="tab-similar" aria-controls="tabpanel-similar" />
+            <Tab label={tabPanelValue.others} value="others" id="tab-others" aria-controls="tabpanel-others" />
           </Tabs>
         </Box>
 
-        {/* タブ内容の表示状態デバッグ */}
-        <Box sx={{ p: 1, mb: 1, bgcolor: 'info.light', borderRadius: 1 }}>
+        <Box sx={{ p: 1, mb: 1, bgcolor: "info.light", borderRadius: 1 }}>
           <Typography variant="caption" color="text.secondary">
-            タブ状態: 基本情報={selectedTabValue === 'basicInfo' ? '表示中' : '非表示'}, 
-            推薦={selectedTabValue === 'recommendations' ? '表示中' : '非表示'}, 
-            似ている社員={selectedTabValue === 'similar' ? '表示中' : '非表示'}, 
-            その他={selectedTabValue === 'others' ? '表示中' : '非表示'}
+            タブ状態: 基本情報={selectedTabValue === "basicInfo" ? "表示中" : "非表示"}, 推薦={selectedTabValue === "recommendations" ? "表示中" : "非表示"}, 似ている社員={selectedTabValue === "similar" ? "表示中" : "非表示"}, その他={selectedTabValue === "others" ? "表示中" : "非表示"}
           </Typography>
         </Box>
 
-        {/* 基本情報タブ */}
         <TabContent value="basicInfo" selectedValue={selectedTabValue}>
           <Box p={2} display="flex" flexDirection="column" gap={1}>
             <Typography variant="h6">基本情報</Typography>
@@ -237,18 +214,14 @@ export function EmployeeDetails(prop: EmployeeDetailsProps) {
           </Box>
         </TabContent>
 
-        {/* 推薦タブ */}
         <TabContent value="recommendations" selectedValue={selectedTabValue}>
           <Box p={2} display="flex" flexDirection="column" gap={2}>
-            {/* 推薦タブの接続状況デバッグ */}
-            <Box sx={{ p: 1, mb: 1, bgcolor: 'success.light', borderRadius: 1 }}>
+            <Box sx={{ p: 1, mb: 1, bgcolor: "success.light", borderRadius: 1 }}>
               <Typography variant="caption" color="text.secondary">
-                推薦タブ接続状況: データ取得中={isLoading.toString()}, 
-                エラー={error ? 'あり' : 'なし'}, 
-                推薦数={recommendations ? recommendations.length : '不明'}
+                推薦タブ接続状況: データ取得中={isLoading.toString()}, エラー={error ? "あり" : "なし"}, 推薦数={recommendations ? recommendations.length : "不明"}
               </Typography>
             </Box>
-            
+
             <Box display="flex" justifyContent="space-between" alignItems="center">
               <Typography variant="h6">推薦一覧</Typography>
               <Button
@@ -258,12 +231,12 @@ export function EmployeeDetails(prop: EmployeeDetailsProps) {
                   console.log("推薦作成ボタンがクリックされました");
                   setIsCreateFormOpen(true);
                 }}
-                sx={{ 
+                sx={{
                   zIndex: 1,
                   minHeight: 40,
                   px: 2,
                   py: 1,
-                  fontSize: '0.875rem',
+                  fontSize: "0.875rem",
                   fontWeight: 500,
                 }}
               >
@@ -278,9 +251,7 @@ export function EmployeeDetails(prop: EmployeeDetailsProps) {
             )}
 
             {error && (
-              <Alert severity="error">
-                推薦の取得に失敗しました: {error.message}
-              </Alert>
+              <Alert severity="error">推薦の取得に失敗しました: {error.message}</Alert>
             )}
 
             {recommendations && recommendations.length > 0 ? (
@@ -309,7 +280,6 @@ export function EmployeeDetails(prop: EmployeeDetailsProps) {
           </Box>
         </TabContent>
 
-        {/* 似ている社員タブ */}
         <TabContent value="similar" selectedValue={selectedTabValue}>
           <Box p={2} display="flex" flexDirection="column" gap={1}>
             <Typography variant="h6">似ている社員</Typography>
@@ -327,7 +297,6 @@ export function EmployeeDetails(prop: EmployeeDetailsProps) {
           </Box>
         </TabContent>
 
-        {/* その他タブ */}
         <TabContent value="others" selectedValue={selectedTabValue}>
           <Box p={2} display="flex" flexDirection="column" gap={1}>
             <Typography variant="h6">その他</Typography>
@@ -341,7 +310,7 @@ export function EmployeeDetails(prop: EmployeeDetailsProps) {
         onClose={() => setIsCreateFormOpen(false)}
         toEmployeeId={employee.id}
         toEmployeeName={employee.name}
-        fromEmployeeId="1" // 実際のユーザーIDに置き換える（仮にID "1" を使用）
+        fromEmployeeId="1"
         onSuccess={handleRecommendationSuccess}
       />
     </Paper>
