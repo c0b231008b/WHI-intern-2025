@@ -16,6 +16,7 @@ import {
   Stack
 } from "@mui/material";
 import { Employee, EmployeeT } from "../models/Employee";
+import ReactPaginate from "react-paginate";
 
 export type EmployeesContainerProps = {
   filterText: string;
@@ -80,6 +81,8 @@ const sortEmployees = (
 export function EmployeeCardContainer({ filterText }: EmployeesContainerProps) {
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [currentPage, setCurrentPage] = useState(0); // 現在のページ（0-indexed）
+  const itemsPerPage = 9; // 1ページあたりの表示件数
 
   const encodedFilterText = encodeURIComponent(filterText);
   const { data, error, isLoading } = useSWR<Employee[], Error>(
@@ -111,6 +114,10 @@ export function EmployeeCardContainer({ filterText }: EmployeesContainerProps) {
     }
   };
 
+  const handlePageChange = (selectedItem: { selected: number }) => {
+    setCurrentPage(selectedItem.selected);
+  };
+
   if (isLoading) {
     return (
       <Box p={3} textAlign="center">
@@ -130,8 +137,9 @@ export function EmployeeCardContainer({ filterText }: EmployeesContainerProps) {
       </Box>
     );
   }
-
-  const sortedData = sortEmployees(data, sortField, sortDirection);
+  const sortedData = sortEmployees(data, sortField, sortDirection); // ソート済み全件データ
+  const pageCount = Math.ceil(sortedData.length / itemsPerPage); // 総ページ数
+  const paginatedData = sortedData.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
   return (
     <Box>
@@ -158,7 +166,7 @@ export function EmployeeCardContainer({ filterText }: EmployeesContainerProps) {
       </Box>
 
       <Grid container spacing={2}>
-        {sortedData.map((employee) => (
+        {paginatedData.map((employee) => (
           <Grid size={4} key={employee.id}>
             <Card variant="outlined">
               <CardActionArea
@@ -216,6 +224,24 @@ export function EmployeeCardContainer({ filterText }: EmployeesContainerProps) {
           </Grid>
         ))}
       </Grid>
+        <Box display="flex" justifyContent="center" mt={2}>
+          <ReactPaginate
+            previousLabel={"← 前へ"}
+            nextLabel={"次へ →"}
+            breakLabel={"..."}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageChange}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            previousClassName={"page-item"}
+            nextClassName={"page-item"}
+            breakClassName={"page-item"}
+            disabledClassName={"disabled"}
+          />
+        </Box>
     </Box>
   );
 }

@@ -3,20 +3,21 @@ import { useEffect, useState } from "react";
 import useSWR from "swr";
 import * as t from "io-ts";
 import { isLeft } from "fp-ts/Either";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Paper,
   TableSortLabel,
   Box,
   Typography,
-  Chip, 
+  Chip,
   Stack
 } from "@mui/material";
+import ReactPaginate from "react-paginate";
 import { Employee, EmployeeT } from "../models/Employee";
 
 export type EmployeesContainerProps = {
@@ -45,7 +46,7 @@ const sortEmployees = (employees: Employee[], field: SortField, direction: SortD
   return [...employees].sort((a, b) => {
     let aValue: string | number;
     let bValue: string | number;
-    
+
     switch (field) {
       case 'name':
         aValue = a.name;
@@ -63,7 +64,7 @@ const sortEmployees = (employees: Employee[], field: SortField, direction: SortD
       default:
         return 0;
     }
-    
+
     if (typeof aValue === 'string' && typeof bValue === 'string') {
       const comparison = aValue.localeCompare(bValue);
       return direction === 'asc' ? comparison : -comparison;
@@ -90,19 +91,21 @@ const sortEmployees = (employees: Employee[], field: SortField, direction: SortD
 export function EmployeeListContainer({ filterText }: EmployeesContainerProps) {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
-  
+  const [currentPage, setCurrentPage] = useState(0); // 現在のページ（0-indexed）
+  const itemsPerPage = 10; // 1ページあたりの表示件数
+
   const encodedFilterText = encodeURIComponent(filterText);
   const { data, error, isLoading } = useSWR<Employee[], Error>(
     `/api/employees?filterText=${encodedFilterText}`,
     employeesFetcher
   );
-  
+
   useEffect(() => {
     if (error != null) {
       console.error(`Failed to fetch employees filtered by filterText`, error);
     }
   }, [error, filterText]);
-  
+
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -111,10 +114,16 @@ export function EmployeeListContainer({ filterText }: EmployeesContainerProps) {
       setSortDirection('asc');
     }
   };
-  
+
+  const handlePageChange = (selectedItem: { selected: number }) => {
+    setCurrentPage(selectedItem.selected);
+  };
+
   if (data != null) {
-    const sortedData = sortEmployees(data, sortField, sortDirection);
-    
+    const sortedData = sortEmployees(data, sortField, sortDirection); // ソート済み全件データ
+    const pageCount = Math.ceil(sortedData.length / itemsPerPage); // 総ページ数
+    const paginatedData = sortedData.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+
     if (sortedData.length === 0) {
       return (
         <Box display="flex" justifyContent="center" p={3}>
@@ -124,78 +133,97 @@ export function EmployeeListContainer({ filterText }: EmployeesContainerProps) {
         </Box>
       );
     }
-    
+
     return (
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-  <TableRow>
-    <TableCell>
-      <TableSortLabel
+      <Box>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>
+                  <TableSortLabel
         active={sortField === 'id'}
         direction={sortField === 'id' ? sortDirection : 'asc'}
         onClick={() => handleSort('id')}
-      >
-        ID
-      </TableSortLabel>
-    </TableCell>
-    <TableCell>
-      <TableSortLabel
-        active={sortField === 'name'}
-        direction={sortField === 'name' ? sortDirection : 'asc'}
-        onClick={() => handleSort('name')}
-      >
-        名前
-      </TableSortLabel>
-    </TableCell>
-    <TableCell>
-      <TableSortLabel
-        active={sortField === 'age'}
-        direction={sortField === 'age' ? sortDirection : 'asc'}
-        onClick={() => handleSort('age')}
-      >
-        年齢
-      </TableSortLabel>
-    </TableCell>
-    <TableCell>所属</TableCell>
-    <TableCell>役職</TableCell>
-    <TableCell>技術スタック</TableCell>
-  </TableRow>
-</TableHead>
+                  >
+                    ID
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'name'}
+                    direction={sortField === 'name' ? sortDirection : 'asc'}
+                    onClick={() => handleSort('name')}
+                  >
+                    名前
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'age'}
+                    direction={sortField === 'age' ? sortDirection : 'asc'}
+                    onClick={() => handleSort('age')}
+                  >
+                    年齢
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>所属</TableCell>
+                <TableCell>役職</TableCell>
+                <TableCell>技術スタック</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {paginatedData.map((employee) => (
+                <TableRow
+                  key={employee.id}
+                  sx={{
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: 'action.hover'
+                    }
+                  }}
+                  onClick={() => window.location.href = `/employee/${employee.id}`}
+                >
+                  <TableCell>{employee.id}</TableCell>
+                  <TableCell>{employee.name}</TableCell>
+                  <TableCell>{employee.age}</TableCell>
+                  <TableCell>{employee.department}</TableCell>
+                  <TableCell>{employee.position}</TableCell>
+                  <TableCell>
+                    <Stack direction="row" spacing={1}>
+                      {employee.techStacks.map((stack, index) => (
+                        <Chip key={index} label={`${stack.name}（レベル: ${stack.level}）`} />
+                      ))}
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-<TableBody>
-  {sortedData.map((employee) => (
-    <TableRow
-      key={employee.id}
-      sx={{
-        cursor: 'pointer',
-        '&:hover': {
-          backgroundColor: 'action.hover'
-        }
-      }}
-      onClick={() => window.location.href = `/employee/${employee.id}`}
-    >
-      <TableCell>{employee.id}</TableCell>
-      <TableCell>{employee.name}</TableCell>
-      <TableCell>{employee.age}</TableCell>
-      <TableCell>{employee.department}</TableCell>
-      <TableCell>{employee.position}</TableCell>
-      <TableCell>
-        <Stack direction="row" spacing={1}>
-          {employee.techStacks.map((stack, index) => (
-            <Chip key={index} label={`${stack.name}（レベル: ${stack.level}）`} />
-          ))}
-        </Stack>
-      </TableCell>
-
-    </TableRow>
-  ))}
-</TableBody>
-        </Table>
-      </TableContainer>
+        <Box display="flex" justifyContent="center" mt={2}>
+          <ReactPaginate
+            previousLabel={"← 前へ"}
+            nextLabel={"次へ →"}
+            breakLabel={"..."}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageChange}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            previousClassName={"page-item"}
+            nextClassName={"page-item"}
+            breakClassName={"page-item"}
+            disabledClassName={"disabled"}
+          />
+        </Box>
+      </Box>
     );
   }
-  
+
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" p={3}>
@@ -203,6 +231,6 @@ export function EmployeeListContainer({ filterText }: EmployeesContainerProps) {
       </Box>
     );
   }
-  
+
   return null;
 }
