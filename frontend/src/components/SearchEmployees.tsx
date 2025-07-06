@@ -1,12 +1,22 @@
 "use client";
-import { Paper, TextField, ToggleButtonGroup, ToggleButton, Box } from "@mui/material";
+import {
+  Paper,
+  TextField,
+  ToggleButtonGroup,
+  ToggleButton,
+  Box,
+} from "@mui/material";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EmployeeListContainer } from "./EmployeeListContainer";
 import { EmployeeCardContainer } from "./EmployeeCardContainer";
 
-export function SearchEmployees() {
+interface SearchEmployeesProps {
+  onFilterChange?: (filterText: string) => void;
+}
+
+export function SearchEmployees({ onFilterChange }: SearchEmployeesProps) {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "card">("card");
 
@@ -18,6 +28,12 @@ export function SearchEmployees() {
       setViewMode(newMode);
     }
   };
+
+  useEffect(() => {
+    if (onFilterChange) {
+      onFilterChange(searchKeyword);
+    }
+  }, [searchKeyword, onFilterChange]);
 
   return (
     <Paper
@@ -33,9 +49,9 @@ export function SearchEmployees() {
         placeholder="検索キーワードを入力してください"
         value={searchKeyword}
         onChange={(e) => setSearchKeyword(e.target.value)}
+        fullWidth
       />
 
-      {/* 表示切替ボタン */}
       <Box display="flex" justifyContent="flex-end">
         <ToggleButtonGroup
           value={viewMode}
@@ -53,7 +69,6 @@ export function SearchEmployees() {
         </ToggleButtonGroup>
       </Box>
 
-      {/* 表示切替 */}
       {viewMode === "list" ? (
         <EmployeeListContainer key="list" filterText={searchKeyword} />
       ) : (

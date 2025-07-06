@@ -1,6 +1,7 @@
 "use client";
-import { AppBar, Box, Toolbar, Typography, IconButton } from "@mui/material";
+import { AppBar, Box, Toolbar, Typography, IconButton, Button } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import Link from "next/link";
@@ -32,6 +33,26 @@ export function GlobalHeader({ title }: GlobalHeaderProps) {
               {title}
             </Typography>
           </Link>
+          
+          <Box sx={{ display: "flex", gap: 1, mr: 2 }}>
+            <Link href="/recommendations" style={{ textDecoration: "none" }}>
+              <Button
+                variant="outlined"
+                startIcon={<ThumbUpIcon />}
+                sx={{ 
+                  color: "white", 
+                  borderColor: "white",
+                  "&:hover": {
+                    borderColor: "white",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)"
+                  }
+                }}
+              >
+                推薦一覧
+              </Button>
+            </Link>
+          </Box>
+          
           <IconButton 
             onClick={toggleTheme} 
             color="inherit"
