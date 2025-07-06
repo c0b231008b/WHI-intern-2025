@@ -54,6 +54,7 @@ const sortEmployees = (employees: Employee[], field: SortField, direction: SortD
         bValue = b.age;
         break;
       case 'id':
+        // IDを数値として扱う（文字列の場合は数値に変換を試行）
         aValue = isNaN(Number(a.id)) ? a.id : Number(a.id);
         bValue = isNaN(Number(b.id)) ? b.id : Number(b.id);
         break;
@@ -68,6 +69,7 @@ const sortEmployees = (employees: Employee[], field: SortField, direction: SortD
       const comparison = aValue - bValue;
       return direction === 'asc' ? comparison : -comparison;
     } else {
+      // 片方が数値、片方が文字列の場合
       const aNum = typeof aValue === 'number' ? aValue : Number(aValue);
       const bNum = typeof bValue === 'number' ? bValue : Number(bValue);
       
@@ -75,6 +77,7 @@ const sortEmployees = (employees: Employee[], field: SortField, direction: SortD
         const comparison = aNum - bNum;
         return direction === 'asc' ? comparison : -comparison;
       } else {
+        // 数値変換できない場合は文字列として比較
         const comparison = String(aValue).localeCompare(String(bValue));
         return direction === 'asc' ? comparison : -comparison;
       }
@@ -160,7 +163,9 @@ export function EmployeeListContainer({ filterText }: EmployeesContainerProps) {
                 key={employee.id}
                 sx={{ 
                   cursor: 'pointer',
-                  '&:hover': { backgroundColor: '#f5f5f5' }
+                  '&:hover': { 
+                    backgroundColor: 'action.hover'
+                  }
                 }}
                 onClick={() => window.location.href = `/employee/${employee.id}`}
               >
