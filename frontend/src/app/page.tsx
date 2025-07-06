@@ -9,7 +9,7 @@ import { Box, Typography } from "@mui/material";
 export default function HomePage() {
   const [filterText, setFilterText] = useState("");
 
-  const employeeFetcher = async (url: string): Promise<any | null> => {
+  const _employeeFetcher = async (url: string): Promise<any | null> => {
     const response = await fetch(url);
     if (!response.ok) {
       return null;
