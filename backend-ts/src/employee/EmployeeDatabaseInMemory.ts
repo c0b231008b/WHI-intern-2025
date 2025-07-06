@@ -1,10 +1,8 @@
 import { EmployeeDatabase } from "./EmployeeDatabase";
 import { Employee } from "./Employee";
 import { normalizeName } from "../utils/normalize"; // 追加
-
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
 // CSVを簡単にパースするための関数
 function parseCSV(filePath: string): Employee[] {
@@ -29,9 +27,7 @@ export class EmployeeDatabaseInMemory implements EmployeeDatabase {
 
     constructor() {
         this.employees = new Map<string, Employee>();
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-        const csvPath = path.resolve(__dirname, "../../data/employees.csv");
+        const csvPath = path.join(__dirname, "../../data/employees.csv");
 
         const employeesFromCSV = parseCSV(csvPath);
 
@@ -57,7 +53,11 @@ export class EmployeeDatabaseInMemory implements EmployeeDatabase {
 
         return employees.filter((employee) => {
             const normalizedName = normalizeName(employee.name);
-            return normalizedName.includes(normalizedKeyword);
+            const ageString = employee.age.toString();
+            return (
+                normalizedName.includes(normalizedKeyword) ||
+                ageString.includes(filterText)
+            );
         });
     }
 }
