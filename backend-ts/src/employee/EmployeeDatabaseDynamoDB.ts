@@ -82,9 +82,7 @@ export class EmployeeDatabaseDynamoDB implements EmployeeDatabase {
         // DynamoDB から全アイテムをスキャン
         const output = await this.client.send(new ScanCommand(input));
         const items = output.Items;
-        if (items == null) {
-            return [];
-        }
+        if (items == null) return [];
 
         // フィルターが空でない場合はキーワードを正規化
         const keyword = filterText.trim().toLowerCase();
