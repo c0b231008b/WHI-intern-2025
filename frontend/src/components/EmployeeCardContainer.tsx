@@ -12,6 +12,8 @@ import {
   CardActionArea,
   ToggleButton,
   ToggleButtonGroup,
+  Chip, 
+  Stack
 } from "@mui/material";
 import { Employee, EmployeeT } from "../models/Employee";
 
@@ -165,9 +167,49 @@ export function EmployeeCardContainer({ filterText }: EmployeesContainerProps) {
                 }
               >
                 <CardContent>
-                  <Typography variant="h6">{employee.name}</Typography>
+                  <Typography variant="h6" fontWeight="bold">{employee.name}</Typography>
                   <Typography color="text.secondary">ID: {employee.id}</Typography>
-                  <Typography>年齢: {employee.age}</Typography>
+                  <Typography color="text.secondary">年齢: {employee.age}</Typography>
+                  {/* タグ表示 */}
+                    <Stack direction="column" spacing={1} mt={2} justifyContent="flex-start">
+                      <Chip
+                      label={employee.department}
+                      variant="outlined"
+                      sx={{
+                        width: "fit-content",
+                        backgroundColor: "#dbe9fe",
+                        borderColor: "#bfdbfe",
+                        color: "#1d40b0"
+                      }}
+                      />
+                      <Chip
+                      label={employee.position}
+                      variant="outlined"
+                      sx={{
+                        width: "fit-content",
+                        backgroundColor: "#f3e8ff",
+                        borderColor: "#e9d5ff",
+                        color: "#6b21a8"
+                      }}
+                      />
+                    </Stack>
+                    <Stack direction="column" spacing={1} mt={3} justifyContent="flex-start">
+
+                        {employee.techStacks.map((stack, index) => (
+                        <Chip
+                          key={index}
+                          label={`${stack.name}（レベル: ${stack.level}）`}
+                          variant="outlined"
+                          sx={{
+                            width: "fit-content",
+                            backgroundColor: "#dcfce7",
+                            borderColor: "#bbf7d0",
+                            color: "#166434"
+                          }}
+                        />
+                        ))}
+                    </Stack>
+                  
                 </CardContent>
               </CardActionArea>
             </Card>

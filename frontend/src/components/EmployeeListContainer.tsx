@@ -13,7 +13,9 @@ import {
   Paper,
   TableSortLabel,
   Box,
-  Typography
+  Typography,
+  Chip, 
+  Stack
 } from "@mui/material";
 import { Employee, EmployeeT } from "../models/Employee";
 
@@ -127,54 +129,68 @@ export function EmployeeListContainer({ filterText }: EmployeesContainerProps) {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>
-                <TableSortLabel
-                  active={sortField === 'id'}
-                  direction={sortField === 'id' ? sortDirection : 'asc'}
-                  onClick={() => handleSort('id')}
-                >
-                  ID
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortField === 'name'}
-                  direction={sortField === 'name' ? sortDirection : 'asc'}
-                  onClick={() => handleSort('name')}
-                >
-                  名前
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortField === 'age'}
-                  direction={sortField === 'age' ? sortDirection : 'asc'}
-                  onClick={() => handleSort('age')}
-                >
-                  年齢
-                </TableSortLabel>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedData.map((employee) => (
-              <TableRow 
-                key={employee.id}
-                sx={{ 
-                  cursor: 'pointer',
-                  '&:hover': { 
-                    backgroundColor: 'action.hover'
-                  }
-                }}
-                onClick={() => window.location.href = `/employee/${employee.id}`}
-              >
-                <TableCell>{employee.id}</TableCell>
-                <TableCell>{employee.name}</TableCell>
-                <TableCell>{employee.age}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+  <TableRow>
+    <TableCell>
+      <TableSortLabel
+        active={sortField === 'id'}
+        direction={sortField === 'id' ? sortDirection : 'asc'}
+        onClick={() => handleSort('id')}
+      >
+        ID
+      </TableSortLabel>
+    </TableCell>
+    <TableCell>
+      <TableSortLabel
+        active={sortField === 'name'}
+        direction={sortField === 'name' ? sortDirection : 'asc'}
+        onClick={() => handleSort('name')}
+      >
+        名前
+      </TableSortLabel>
+    </TableCell>
+    <TableCell>
+      <TableSortLabel
+        active={sortField === 'age'}
+        direction={sortField === 'age' ? sortDirection : 'asc'}
+        onClick={() => handleSort('age')}
+      >
+        年齢
+      </TableSortLabel>
+    </TableCell>
+    <TableCell>所属</TableCell>
+    <TableCell>役職</TableCell>
+    <TableCell>技術スタック</TableCell>
+  </TableRow>
+</TableHead>
+
+<TableBody>
+  {sortedData.map((employee) => (
+    <TableRow
+      key={employee.id}
+      sx={{
+        cursor: 'pointer',
+        '&:hover': {
+          backgroundColor: 'action.hover'
+        }
+      }}
+      onClick={() => window.location.href = `/employee/${employee.id}`}
+    >
+      <TableCell>{employee.id}</TableCell>
+      <TableCell>{employee.name}</TableCell>
+      <TableCell>{employee.age}</TableCell>
+      <TableCell>{employee.department}</TableCell>
+      <TableCell>{employee.position}</TableCell>
+      <TableCell>
+        <Stack direction="row" spacing={1}>
+          {employee.techStacks.map((stack, index) => (
+            <Chip key={index} label={`${stack.name}（レベル: ${stack.level}）`} />
+          ))}
+        </Stack>
+      </TableCell>
+
+    </TableRow>
+  ))}
+</TableBody>
         </Table>
       </TableContainer>
     );
