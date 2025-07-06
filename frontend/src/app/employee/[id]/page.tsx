@@ -1,14 +1,13 @@
-import { EmployeeDetailsContainer } from "@/components/EmployeeDetailsContainer";
+// app/employees/[id]/page.tsx
 import { GlobalContainer } from "@/components/GlobalContainer";
-import { Suspense } from 'react';
+import { EmployeeDetailsContainer } from "@/components/EmployeeDetailsContainer";
+import { DynamicTitle } from "@/components/DynamicTitle";
 
 export default function EmployeePage() {
   return (
-    <GlobalContainer>
-      { /* Mark EmployeeDetailsContainer as CSR */ }
-      <Suspense>
-        <EmployeeDetailsContainer />
-      </Suspense>
+    <GlobalContainer pageTitle="社員詳細">
+      <DynamicTitle />
+      <EmployeeDetailsContainer />
     </GlobalContainer>
   );
 }

@@ -27,3 +27,43 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 1rem;
+  margin-top: 1rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.page-item {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+  background-color: #f9f9f9;
+  transition: background-color 0.2s ease;
+}
+
+.page-item:hover {
+  background-color: #e0e0e0;
+}
+
+.active {
+  background-color: #1976d2;
+  color: white;
+  border-color: #1976d2;
+  font-weight: bold;
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.mui-kl1xo3{
+  margin-bottom: 100px;
+}
