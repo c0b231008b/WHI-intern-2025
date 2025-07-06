@@ -1,4 +1,10 @@
-import { DynamoDBClient, GetItemCommand, GetItemCommandInput, ScanCommand, ScanCommandInput } from "@aws-sdk/client-dynamodb";
+import {
+    DynamoDBClient,
+    GetItemCommand,
+    GetItemCommandInput,
+    ScanCommand,
+    ScanCommandInput,
+} from "@aws-sdk/client-dynamodb";
 import { isLeft } from "fp-ts/Either";
 import { EmployeeDatabase } from "./EmployeeDatabase";
 import { Employee, EmployeeT } from "./Employee";
@@ -13,7 +19,7 @@ export class EmployeeDatabaseDynamoDB implements EmployeeDatabase {
     }
 
     async getEmployee(id: string): Promise<Employee | undefined> {
-        const input: GetItemCommandInput  = {
+        const input: GetItemCommandInput = {
             TableName: this.tableName,
             Key: {
                 id: { S: id },
@@ -26,8 +32,8 @@ export class EmployeeDatabaseDynamoDB implements EmployeeDatabase {
         }
         const employee = {
             id: id,
-            name: item["name"].S,
-            age: mapNullable(item["age"].N, value => parseInt(value, 10)),
+            name: item["name"]?.S ?? "",
+            age: mapNullable(item["age"]?.N, value => parseInt(value, 10)),
         };
         const decoded = EmployeeT.decode(employee);
         if (isLeft(decoded)) {
@@ -38,7 +44,7 @@ export class EmployeeDatabaseDynamoDB implements EmployeeDatabase {
     }
 
     async getEmployees(filterText: string): Promise<Employee[]> {
-        const input: ScanCommandInput  = {
+        const input: ScanCommandInput = {
             TableName: this.tableName,
         };
         const output = await this.client.send(new ScanCommand(input));
@@ -46,22 +52,32 @@ export class EmployeeDatabaseDynamoDB implements EmployeeDatabase {
         if (items == null) {
             return [];
         }
+
+        const keyword = filterText.trim().toLowerCase();
+
         return items
-            .filter(item => filterText === "" || item["name"].S === filterText)
             .map(item => {
-                return {
-                    id: item["id"].S,
-                    name: item["name"].S,
-                    age: mapNullable(item["age"].N, value => parseInt(value, 10)),
-                }
-            }).flatMap(employee => {
+                const employee = {
+                    id: item["id"]?.S ?? "",
+                    name: item["name"]?.S ?? "",
+                    age: mapNullable(item["age"]?.N, value => parseInt(value, 10)),
+                };
+
                 const decoded = EmployeeT.decode(employee);
                 if (isLeft(decoded)) {
                     console.error(`Employee ${employee.id} is missing some fields and skipped. ${JSON.stringify(employee)}`);
-                    return [];
-                } else {
-                    return [decoded.right];
+                    return undefined;
                 }
+
+                return decoded.right;
+            })
+            .filter((employee): employee is Employee => {
+                if (!employee) return false;
+                if (keyword === "") return true;
+
+                const name = employee.name.toLowerCase();
+                const ageStr = employee.age.toString();
+                return name.includes(keyword) || ageStr.includes(keyword);
             });
     }
 }
