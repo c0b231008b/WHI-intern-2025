@@ -23,7 +23,7 @@ function parseCSV(filePath: string): Employee[] {
             techStacks: (values[5] || "").split(";").filter(pair => pair.trim() !== "").map(pair => {
                 const [tech, levelStr] = pair.split(":");
                 return {
-                    name: tech.replaceAll('"', '').trim() || "", // ダブルクオートを削除
+                    name: tech.trim().replace(/^"+|"+$/g, "").replace(/"/g, "") || "", // ダブルクオートを削除
                     level: Number(levelStr) || 0,
                 };
             }),
