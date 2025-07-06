@@ -27,14 +27,20 @@ export class EmployeeDatabaseDynamoDB implements EmployeeDatabase {
         };
         const output = await this.client.send(new GetItemCommand(input));
         const item = output.Item;
-        if (item == null) {
-            return;
-        }
+        if (item == null) return;
+
         const employee = {
             id: id,
             name: item["name"]?.S ?? "",
             age: mapNullable(item["age"]?.N, value => parseInt(value, 10)),
+            department: item["department"]?.S ?? "",
+            position: item["position"]?.S ?? "",
+            techStacks: item["techStacks"]?.L?.map((entry) => ({
+                name: entry.M?.name?.S ?? "",
+                level: Number(entry.M?.level?.N ?? "0"),
+            })) ?? [],
         };
+
         const decoded = EmployeeT.decode(employee);
         if (isLeft(decoded)) {
             throw new Error(`Employee ${id} is missing some fields. ${JSON.stringify(employee)}`);
@@ -49,9 +55,7 @@ export class EmployeeDatabaseDynamoDB implements EmployeeDatabase {
         };
         const output = await this.client.send(new ScanCommand(input));
         const items = output.Items;
-        if (items == null) {
-            return [];
-        }
+        if (items == null) return [];
 
         const keyword = filterText.trim().toLowerCase();
 
@@ -61,6 +65,12 @@ export class EmployeeDatabaseDynamoDB implements EmployeeDatabase {
                     id: item["id"]?.S ?? "",
                     name: item["name"]?.S ?? "",
                     age: mapNullable(item["age"]?.N, value => parseInt(value, 10)),
+                    department: item["department"]?.S ?? "",
+                    position: item["position"]?.S ?? "",
+                    techStacks: item["techStacks"]?.L?.map((entry) => ({
+                        name: entry.M?.name?.S ?? "",
+                        level: Number(entry.M?.level?.N ?? "0"),
+                    })) ?? [],
                 };
 
                 const decoded = EmployeeT.decode(employee);
