@@ -1,4 +1,3 @@
-// src/components/SimilarEmployees.tsx
 "use client";
 
 import useSWR from "swr";
@@ -22,6 +21,37 @@ const employeesFetcher = async (url: string): Promise<Employee[]> => {
   return decoded.right;
 };
 
+// 類似度スコア（小さいほど近い）
+function computeSimilarityScore(a: Employee, b: Employee): number {
+  const ageDiff = Math.abs(a.age - b.age);
+
+  const departmentDiff = a.department === b.department ? 0 : 1;
+  const positionDiff = a.position === b.position ? 0 : 1;
+
+  // techStacks: スキルの重複度とレベルの差
+  const techA = a.techStacks ?? [];
+  const techB = b.techStacks ?? [];
+
+  let totalSkillDiff = 0;
+  let matchedCount = 0;
+
+  for (const skillA of techA) {
+    const matched = techB.find((skillB) => skillA.name === skillB.name);
+    if (matched) {
+      matchedCount++;
+      totalSkillDiff += Math.abs(skillA.level - matched.level);
+    }
+  }
+
+  const unmatchedPenalty = techA.length + techB.length - 2 * matchedCount;
+  const skillScore = totalSkillDiff + unmatchedPenalty;
+
+  // 重みづけ（調整可能）
+  return (
+    ageDiff * 0.3 + departmentDiff * 0.2 + positionDiff * 0.2 + skillScore * 0.3
+  );
+}
+
 export const SimilarEmployees: React.FC<Props> = ({ currentEmployee }) => {
   const {
     data: allEmployees,
@@ -36,9 +66,9 @@ export const SimilarEmployees: React.FC<Props> = ({ currentEmployee }) => {
     .filter((e) => e.id !== currentEmployee.id)
     .map((e) => ({
       ...e,
-      ageDiff: Math.abs(e.age - currentEmployee.age),
+      similarityScore: computeSimilarityScore(currentEmployee, e),
     }))
-    .sort((a, b) => a.ageDiff - b.ageDiff)
+    .sort((a, b) => a.similarityScore - b.similarityScore)
     .slice(0, 10);
 
   return (
@@ -49,8 +79,8 @@ export const SimilarEmployees: React.FC<Props> = ({ currentEmployee }) => {
       <ul>
         {similar.map((e) => (
           <li key={e.id}>
-            {e.name}（{e.age}歳） - 差: {Math.abs(e.age - currentEmployee.age)}
-            歳
+            {e.name}（{e.age}歳 / {e.position} / {e.department}）<br />
+            スコア: {e.similarityScore.toFixed(2)}
           </li>
         ))}
       </ul>
